@@ -1,2 +1,2 @@
-# ascii-luminance
-Calculates a luminance value for each ASCII character
+# ascii-luminosity
+Calculates a luminosity value for each ASCII character
