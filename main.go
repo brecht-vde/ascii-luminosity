@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image"
 	"image/draw"
 	"image/png"
@@ -13,21 +14,10 @@ import (
 )
 
 func main() {
-	ascii := populateAscii()
-	calculateLuminosity(ascii)
+
 }
 
-func populateAscii() []string {
-	var ascii []string
-
-	for i := 32; i < 127; i++ {
-		ascii = append(ascii, string(rune(i)))
-	}
-
-	return ascii
-}
-
-func calculateLuminosity(ascii []string) {
+func drawCharacter(character string) *image.Gray {
 	img := image.NewGray(image.Rect(0, 0, 50, 50))
 	draw.Draw(img, img.Bounds(), image.White, img.Bounds().Min, draw.Src)
 
@@ -43,7 +33,7 @@ func calculateLuminosity(ascii []string) {
 		Hinting: font.HintingFull,
 	})
 
-	bounds, _ := font.BoundString(face, "A")
+	bounds, _ := font.BoundString(face, character)
 
 	imgWidth := fixed.I(50)
 	imgHeight := fixed.I(50)
@@ -58,9 +48,11 @@ func calculateLuminosity(ascii []string) {
 		Dot:  fixed.Point26_6{X: cx, Y: cy},
 	}
 
-	d.DrawString(".")
+	d.DrawString(character)
 
-	file, _ := os.Create("output.png")
+	file, _ := os.Create(fmt.Sprintf("%v.png", character))
 	defer file.Close()
 	png.Encode(file, img)
+
+	return img
 }
