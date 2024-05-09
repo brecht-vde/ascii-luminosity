@@ -11,7 +11,7 @@ func NewCalculator(renderer *Renderer) *Calculator {
 }
 
 func (c *Calculator) Calculate() Gradient {
-	var colorStops []ColorStop
+	var colorStops []GradientStop
 
 	for i := 32; i < 127; i++ {
 		char := rune(i)
@@ -19,14 +19,14 @@ func (c *Calculator) Calculate() Gradient {
 		pixels := c.renderer.Render(char)
 		average := c.average(pixels)
 
-		colorStops = append(colorStops, ColorStop{
+		colorStops = append(colorStops, GradientStop{
 			Character:  char,
 			Luminosity: average,
 		})
 	}
 
 	return Gradient{
-		ColorStops: colorStops,
+		GradientStops: colorStops,
 	}
 }
 

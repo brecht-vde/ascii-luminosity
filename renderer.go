@@ -34,7 +34,7 @@ func NewRenderer(width, height, size int, fnt *sfnt.Font) (*Renderer, error) {
 	}, nil
 }
 
-func (r *Renderer) Render(char rune) (pixels []uint8) {
+func (r *Renderer) Render(char rune) []uint8 {
 	r.reset()
 	r.render(char)
 	return r.img.Pix
