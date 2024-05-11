@@ -1,54 +1,43 @@
 package main
 
-import "sort"
-
-type Gradient struct {
-	GradientStops []GradientStop
-}
-
-type GradientStop struct {
-	Character  rune
-	Luminosity float64
-}
-
-type GradientDirection string
-
-const (
-	L2D GradientDirection = "light-to-dark"
-	D2L GradientDirection = "dark-to-light"
+import (
+	"sort"
 )
 
-func (g *Gradient) Add(character rune, luminosity float64) {
-	stop := &GradientStop{
-		Character:  character,
-		Luminosity: luminosity,
+type Gradient struct {
+	Stops Stops
+}
+
+type Stops map[rune]float64
+
+type Mode string
+
+const (
+	Lightening Mode = "Lightening"
+	Darkening  Mode = "Darkening"
+)
+
+func (g *Gradient) Render(mode Mode) string {
+	keys := g.getKeys()
+	g.applyMode(keys, mode)
+	return string(keys)
+}
+
+func (g *Gradient) getKeys() []rune {
+	keys := make([]rune, 0, len(g.Stops))
+	for key := range g.Stops {
+		keys = append(keys, key)
 	}
-
-	g.GradientStops = append(g.GradientStops, *stop)
+	return keys
 }
 
-func (g *Gradient) Render(direction GradientDirection) string {
-	g.sort(direction)
-	return g.generate()
-}
-
-func (g *Gradient) generate() string {
-	charset := ""
-
-	for i := 0; i < len(g.GradientStops); i++ {
-		charset += string(g.GradientStops[i].Character)
-	}
-
-	return charset
-}
-
-func (g *Gradient) sort(direction GradientDirection) {
-	sort.Slice(g.GradientStops, func(i, j int) bool {
-		switch direction {
+func (g *Gradient) applyMode(keys []rune, mode Mode) {
+	sort.Slice(keys, func(i, j int) bool {
+		switch mode {
 		default:
-			return g.GradientStops[i].Luminosity > g.GradientStops[j].Luminosity
-		case D2L:
-			return g.GradientStops[i].Luminosity < g.GradientStops[j].Luminosity
+			return g.Stops[keys[i]] < g.Stops[keys[j]]
+		case Darkening:
+			return g.Stops[keys[i]] > g.Stops[keys[j]]
 		}
 	})
 }

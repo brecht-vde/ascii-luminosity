@@ -2,84 +2,46 @@ package main
 
 import "testing"
 
-func TestGradientRenders(t *testing.T) {
+func TestGradientRender(t *testing.T) {
+	data := map[rune]float64{
+		'A': 0.00,
+		'B': 0.25,
+		'C': 0.50,
+		'D': 0.75,
+		'E': 1.00,
+	}
+
 	tests := []struct {
-		direction GradientDirection
-		expected  string
-		items     []struct {
-			character  rune
-			luminosity float64
-		}
+		name     string
+		data     map[rune]float64
+		mode     Mode
+		expected string
 	}{
 		{
-			direction: GradientDirection(D2L),
-			expected:  "ABCDE",
-			items: []struct {
-				character  rune
-				luminosity float64
-			}{
-				{
-					character:  'A',
-					luminosity: 0,
-				},
-				{
-					character:  'B',
-					luminosity: 0.25,
-				},
-				{
-					character:  'C',
-					luminosity: 0.50,
-				},
-				{
-					character:  'D',
-					luminosity: 0.75,
-				},
-				{
-					character:  'E',
-					luminosity: 1,
-				},
-			},
+			name:     "Light mode gradient",
+			data:     data,
+			mode:     Lightening,
+			expected: "ABCDE",
 		},
 		{
-			direction: GradientDirection(L2D),
-			expected:  "EDCBA",
-			items: []struct {
-				character  rune
-				luminosity float64
-			}{
-				{
-					character:  'A',
-					luminosity: 0,
-				},
-				{
-					character:  'B',
-					luminosity: 0.25,
-				},
-				{
-					character:  'C',
-					luminosity: 0.50,
-				},
-				{
-					character:  'D',
-					luminosity: 0.75,
-				},
-				{
-					character:  'E',
-					luminosity: 1,
-				},
-			},
+			name:     "Dark mode gradient",
+			data:     data,
+			mode:     Darkening,
+			expected: "EDCBA",
 		},
 	}
 
 	for _, tt := range tests {
-		g := &Gradient{}
+		t.Run(tt.name, func(t *testing.T) {
+			sut := &Gradient{
+				Stops: tt.data,
+			}
 
-		for _, item := range tt.items {
-			g.Add(item.character, item.luminosity)
-		}
+			result := sut.Render(tt.mode)
 
-		if charset := g.Render(tt.direction); charset != tt.expected {
-			t.Errorf("Output '%q' does not equal expected '%q'", charset, tt.expected)
-		}
+			if result != tt.expected {
+				t.Errorf("Test '%s' failed. expected: '%s', received: '%s'", tt.name, tt.expected, result)
+			}
+		})
 	}
 }
