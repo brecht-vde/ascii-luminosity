@@ -5,32 +5,20 @@ import (
 	"image/draw"
 
 	"golang.org/x/image/font"
-	"golang.org/x/image/font/opentype"
-	"golang.org/x/image/font/sfnt"
 	"golang.org/x/image/math/fixed"
 )
 
 type Renderer struct {
 	img  *image.Gray
-	face *font.Face
+	face font.Face
 }
 
-func NewRenderer(width, height, size int, fnt *sfnt.Font) (*Renderer, error) {
-	face, err := opentype.NewFace(fnt, &opentype.FaceOptions{
-		Size:    float64(size),
-		DPI:     72,
-		Hinting: font.HintingFull,
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
+func NewRenderer(width, height, size int, face font.Face) (*Renderer, error) {
 	img := image.NewGray(image.Rect(0, 0, width, height))
 
 	return &Renderer{
 		img:  img,
-		face: &face,
+		face: face,
 	}, nil
 }
 
@@ -50,7 +38,7 @@ func (r *Renderer) render(char rune) {
 	d := &font.Drawer{
 		Dst:  r.img,
 		Src:  image.Black,
-		Face: *r.face,
+		Face: r.face,
 		Dot:  center,
 	}
 
@@ -61,7 +49,7 @@ func (r *Renderer) getCenter(char rune) fixed.Point26_6 {
 	fw := fixed.I(r.img.Bounds().Max.X)
 	fh := fixed.I(r.img.Bounds().Max.Y)
 
-	bounds, _ := font.BoundString(*r.face, string(char))
+	bounds, _ := font.BoundString(r.face, string(char))
 
 	cx := (fw - bounds.Max.X) / 2
 	cy := (fh - bounds.Max.Y) / 2
