@@ -1,19 +1,39 @@
-package main
+package luminosity
 
-import "sort"
+import (
+	"sort"
 
-type Rend interface {
-	Render(char rune) float64
-}
+	"github.com/brecht-vde/ascii-luminosity/internal/rendering"
+	"golang.org/x/image/font"
+)
 
 type Generator struct {
-	Renderer Rend
+	Renderer Renderer
 }
 
-func NewGenerator(renderer Rend) Generator {
+type Mode string
+
+const (
+	Lightening Mode = "Lightening"
+	Darkening  Mode = "Darkening"
+)
+
+func NewGenerator(renderer Renderer) Generator {
 	return Generator{
 		Renderer: renderer,
 	}
+}
+
+func NewDefaultGenerator(face *font.Face) (*Generator, error) {
+	renderer, err := rendering.NewDefaultRenderer(50, 50, 16, *face)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &Generator{
+		Renderer: renderer,
+	}, nil
 }
 
 func (g *Generator) Generate(charset []rune, mode Mode) string {

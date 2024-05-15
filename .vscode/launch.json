@@ -9,7 +9,9 @@
             "type": "go",
             "request": "launch",
             "args": [
-                "-font=/usr/share/fonts/truetype/ubuntu/Ubuntu-B.ttf"
+                "-font=/usr/share/fonts/truetype/ubuntu/Ubuntu-B.ttf",
+                "-mode=Lightening",
+                "-charset=Ansi"
             ],
             "mode": "auto",
             "program": "${fileDirname}"

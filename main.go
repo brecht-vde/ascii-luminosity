@@ -6,32 +6,55 @@ import (
 	"io"
 	"os"
 
+	"github.com/brecht-vde/ascii-luminosity/pkg/luminosity"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 )
 
+type Options struct {
+	Font    string
+	Mode    luminosity.Mode
+	Charset luminosity.Charset
+}
+
 func main() {
-	var font string
-	flag.StringVar(&font, "font", "", "path to a font file to calculate the luminosity of characters with.")
+	options := parseOptions()
+
+	face, err := initFontFace(options.Font)
+
+	if err != nil {
+		fmt.Printf("%q\n", err)
+		return
+	}
+
+	generator, err := luminosity.NewDefaultGenerator(&face)
+
+	if err != nil {
+		fmt.Printf("%q", err)
+	}
+
+	charset := luminosity.LoadCharset(options.Charset)
+	gradient := generator.Generate(charset, options.Mode)
+
+	fmt.Println(gradient)
+}
+
+func parseOptions() Options {
+	options := Options{}
+
+	var mode string
+	var charset string
+
+	flag.StringVar(&options.Font, "font", "", "path to a font file to calculate the luminosity of characters with.")
+	flag.StringVar(&mode, "mode", "", "mode in which the gradient should be displayed ('Lightening' or 'Darkening').")
+	flag.StringVar(&charset, "charset", "", "charset to use in the gradient ('Ascii' or 'Emoji').")
+
 	flag.Parse()
 
-	face, err := initFontFace(font)
+	options.Mode = luminosity.Mode(mode)
+	options.Charset = luminosity.Charset(charset)
 
-	if err != nil {
-		fmt.Printf("%q\n", err)
-		return
-	}
-
-	renderer, err := NewRenderer(50, 50, 16, face)
-
-	if err != nil {
-		fmt.Printf("%q\n", err)
-		return
-	}
-
-	a := renderer.Render('A')
-
-	fmt.Println(a)
+	return options
 }
 
 func initFontFace(path string) (font.Face, error) {
